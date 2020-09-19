@@ -1,0 +1,62 @@
+<ion-header>
+    <ion-header>
+
+        <ion-toolbar class="menu-btn">
+
+            <ion-buttons slot="start" (click)="navigateToSalepage()">
+                <ion-button>
+                    <ion-icon name="chevron-back"></ion-icon>
+                </ion-button>
+            </ion-buttons>
+            <ion-title class="ion-text-center">Menu</ion-title>
+
+        </ion-toolbar>
+
+    </ion-header>
+</ion-header>
+<ion-content>
+    <div [ngSwitch]="segmentModel">
+        <!-- Responsive Layout with Ion Grid-->
+        <ion-list *ngSwitchCase="'Food'">
+
+            <ion-item *ngFor="let menu of MenuList; let i = index">
+                <ion-label>
+                    {{menu.name}}
+                </ion-label>
+            </ion-item>
+        </ion-list>
+       
+        <ion-fab horizontal="start" vertical="bottom" *ngSwitchCase="'Food'">
+            <ion-fab-button class="menu-btn" (click)="addmenu()">
+                <ion-icon name="add"></ion-icon>
+            </ion-fab-button>
+        </ion-fab>
+    </div>
+</ion-content>
+
+<ion-footer>
+    <ion-toolbar class="menu-btn">
+
+        <ion-segment value="all"
+                     color="tertiary"
+                     scrollable="true"
+                     mode="ios"
+                     [(ngModel)]="segmentModel">
+                 <!--    (ionChange)="segmentChanged($event)">-->
+
+            <!--   <ion-segment-button color="primary" value="Menu">
+                <ion-icon name="ellipsis-vertical"></ion-icon>
+            </ion-segment-button>-->
+
+            <ion-segment-button value="Food">
+                Food
+            </ion-segment-button>
+            <ion-segment-button value="Drink">
+                Drink
+            </ion-segment-button>
+            <ion-segment-button value="Dessert">
+                Dessert
+            </ion-segment-button>
+        </ion-segment>
+    </ion-toolbar>
+</ion-footer>
