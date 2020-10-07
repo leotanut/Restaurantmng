@@ -11,6 +11,6 @@
     "\\src\\app\\sale-page",
     "\\src\\app\\services"
   ],
-  "SelectedNode": "\\src\\app\\app-routing.module.ts",
+  "SelectedNode": "\\src\\app\\sale-page\\sale-page.page.ts",
   "PreviewInSolutionExplorer": false
 }

@@ -53,7 +53,7 @@ export class LoginPage implements OnInit {
             .then(res => {
                 console.log(res);
                 this.errorMessage = "";
-                this.navCtrl.navigateForward('/sale-page');
+                this.navCtrl.navigateForward('/table');
             }, err => {
                 this.errorMessage = err.message;
             })

@@ -1,13 +1,12 @@
 ion-col {
     border: 1px solid grey;
     text-align: center;
-    
 }
 
 .grid-of-table {
     --ion-grid-column-padding: 36px;
-   
 }
+
 ion-grid {
     --ion-grid-columns: 12;
     --ion-grid-padding: 0px;
@@ -17,6 +16,7 @@ ion-grid {
     --ion-grid-width-lg: 960px;
     --ion-grid-width-xl: 1140px;
 }
+
 .menu-btn {
     --background: #feaf5e;
 }

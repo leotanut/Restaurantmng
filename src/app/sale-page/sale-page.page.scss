@@ -3,12 +3,26 @@
     --color: #ffffff;
 }
 
+.btn {
+    padding: 0 15px;
+}
+
+.btn-charge {
+    --background: #32CD32;
+}
+
+.btn-cancel {
+    --background: #ff0000;
+}
+
 .menu-btn {
     --background: #feaf5e;
 }
+
 .my-custom-menu {
     --width: 500px;
 }
+
 page-sale {
 
     .image-container {
