@@ -1,0 +1,29 @@
+<ion-header>
+    <ion-toolbar class="menu-btn">
+         <ion-buttons slot="start" (click)="navigateToSalepage()">
+            <ion-button>
+                <ion-icon name="chevron-back"style="zoom:1.2;"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-title class="ion-text-center">History Sold</ion-title>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content>
+    <ion-item-group>
+        <ion-button (click)="gettoday()">Today</ion-button>
+        <ion-button (click)="getweek()">Thisweek</ion-button>
+        <ion-button (click)="getmonth()">Thismonth</ion-button>
+        <ion-button (click)="all()">All</ion-button>
+    </ion-item-group>
+    <!--  <ion-list-header color="light">Vertical Bar Chart</ion-list-header>-->
+    <ion-card class="welcome-card">
+        <ion-card-header>
+            <ion-card-subtitle>History Sold</ion-card-subtitle>
+            <ion-card-title>Menu</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+            <canvas #barChart></canvas>
+        </ion-card-content>
+    </ion-card>
+</ion-content>

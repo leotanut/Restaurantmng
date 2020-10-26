@@ -5,11 +5,13 @@ import * as firebase from 'firebase';
 import { async } from '@angular/core/testing';
 var user = firebase.auth().currentUser;
 import { ActivatedRoute } from '@angular/router';
+import { Platform, LoadingController } from '@ionic/angular';
 
 import { Router } from '@angular/router';
 //Side Menu
 import { MenuController } from '@ionic/angular';
 import { Variable } from '@angular/compiler/src/render3/r3_ast';
+import { from } from 'rxjs';
 
 @Component({
     selector: 'app-sale-page',
@@ -37,7 +39,8 @@ export class SalePagePage implements OnInit {
     check: boolean;
 
     constructor(public navCtrl: NavController,
-
+        public platform: Platform,
+        public loadingController: LoadingController,
         public alertCtrl: AlertController,
         private authService: AuthenticateService,
         public menu: MenuController,
@@ -50,13 +53,13 @@ export class SalePagePage implements OnInit {
                 if (this.router.getCurrentNavigation().extras.state.detail) {
                     this.orderdetail = this.router.getCurrentNavigation().extras.state.detail;
                     this.data = this.orderdetail.table;
-                    console.log("go1");
+                    
                     this.sum = this.orderdetail.allsum;
                     this.check = true;
                 } else {
                     this.data = this.router.getCurrentNavigation().extras.state.table;
                     this.sum = 0;
-                    console.log("go2");
+                   
                     this.check = false;
                 };
 
@@ -69,15 +72,20 @@ export class SalePagePage implements OnInit {
         });
 
     }
+    async loadingPresent(message: string = "Loading..", duration: number = null) {
+        const loading = await this.loadingController.create({ message, duration });
+        return await loading.present();
+    }
+
+    async loadingDismiss() {
+        setTimeout(() => {
+            return this.loadingController.dismiss();
+        }, 1000);
+    }
 
     // increment product qty
     incrementQty(index) {
-        console.log(this.orderdetail);
-        console.log(this.tablenum);
-
-        //  console.log(this.orderList);
-
-        // console.log(this.drinkList[index].name + this.drinkList[index].qty + 1);
+       
         this.orderList[index].qty += 1;
         let task = this.orderList[index];
         task.sum = task.price * task.qty;
@@ -88,10 +96,10 @@ export class SalePagePage implements OnInit {
     decrementQty(index) {
         if (this.orderList[index].qty - 1 < 0) {
             this.orderList[index].qty = 0
-            console.log('1 ->' + this.orderList[index].qty);
+          
         } else {
             this.orderList[index].qty -= 1;
-            console.log('2 ->' + this.orderList[index].qty);
+           
         }
         let task = this.orderList[index];
         task.sum = task.price * task.qty;
@@ -102,7 +110,7 @@ export class SalePagePage implements OnInit {
         let allsum: number = 0;
 
         for (let item of this.orderList) {
-            //   console.log(typeof(item.sum))
+          
             allsum = allsum + item.sum
         }
         this.sum = allsum;
@@ -114,28 +122,25 @@ export class SalePagePage implements OnInit {
     navigateTomenu() {
         this.navCtrl.navigateForward('/menu');
     }
-    Ordered2() {
-        this.drinkList = [""];
-        this.navCtrl.navigateForward('/table');
-    }
+
 
 
     async Ordered() {
         //Retrieve weight data from database put in to orderList[]
 
         if (this.check === true) {
-            console.log("come111");
+           
             const makeodr = await firebase.firestore().collection("order");
 
 
             (await makeodr.where("Userid", "==", this.userid ? this.userid : "").where("table", "==", this.data).get()).forEach(doc => {
-                //  console.log(doc.id, '=>', doc.data());
+                
 
                 orderid = doc.id;
 
             });
-            console.log(orderid);
-
+        
+           
             let myOrderList = this.orderList.filter(function (value) {
                 return value.qty > 0
             })
@@ -151,19 +156,25 @@ export class SalePagePage implements OnInit {
                 .catch(function (error) {
                     console.error("Error writing document: ", error);
                 });
-            this.navCtrl.navigateForward('/table');
+            this.router.navigate(['/table'])
+                .then(() => {
+                    window.location.reload();
+                });
+        //    this.navCtrl.navigateForward('/table');
+         //   this.navCtrl.navigateRoot('/table');
+       
         } else {
             var orderid;
             const makeodr = await firebase.firestore().collection("order");
             makeodr.add({ table: this.data, Userid: this.userid, });
 
             (await makeodr.where("Userid", "==", this.userid ? this.userid : "").where("table", "==", this.data).get()).forEach(doc => {
-                //  console.log(doc.id, '=>', doc.data());
+              
 
                 orderid = doc.id;
 
             });
-            console.log(orderid);
+         
 
             let myOrderList = this.orderList.filter(function (value) {
                 return value.qty > 0
@@ -180,73 +191,82 @@ export class SalePagePage implements OnInit {
                 .catch(function (error) {
                     console.error("Error writing document: ", error);
                 });
-            this.navCtrl.navigateForward('/table');
+               this.router.navigate(['/table'])
+                .then(() => {
+                    window.location.reload();
+                });
+        //    this.navCtrl.navigateRoot('/table');
         }
 
 
     }
-
+    menulist =[];
     async charge() {
         if (this.check === true) {
             var orderid;
-            let entry = [];
+            let ing = [];
             let entry2 = [];
-            const ordercut1 = await firebase.firestore().collection("Food").where("Userid", "==", this.userid ? this.userid : "");
+            var inginit = [];
+
+            const ordercut1 = await firebase.firestore().collection("ingredient").where("Userid", "==", this.userid ? this.userid : "");
             const snapshot1 = await ordercut1.get();
             snapshot1.forEach(doc => {
 
-                entry.push({
-
-                    'namein': doc.data().ingredient.name,
-                    'weightin': doc.data().ingredient.weight
+                ing.push({
+                    'namein': doc.data().Name,
+                    'weightin': doc.data().Weight,
+                    'id': doc.id
                 })
             });
-            for (let item in entry) {
-                this.orderList[item].namein = entry[item].namein;
-                this.orderList[item].weightin = entry[item].weightin;
-                this.orderList[item].amount = this.orderList[item].qty * this.orderList[item].weightin;
 
-            }
-            console.log(this.orderList);
-            //Retrieve weight data name data from database put in to orderList[]
 
-            const ordercut2 = await firebase.firestore().collection("ingredient").where("Userid", "==", this.userid ? this.userid : "");
-            const snapshot2 = await ordercut2.get();
+            const dbdrink = await firebase.firestore().collection("Menu").where("Userid", "==", this.userid ? this.userid : "")
+            const snapshot2 = await dbdrink.get()
             snapshot2.forEach(doc => {
-
-                var entry = {
-                    'namest': "",
-                    'weightst': 0,
-                    'id': 0,
-                };
-                entry2.push({
-                    'namest': doc.data().Name,
-                    'weightst': doc.data().Weight,
-                    'id': doc.id
+                this.menulist.push({
+                    'id': doc.id, 'ingre': doc.data().ingredient,
                 });
-                this.cutstocker2.push(entry);
+            }
+            );
+
+
+
+            (await firebase.firestore().collection("order").where("Userid", "==", this.userid ? this.userid : "").where("table", "==", this.data).get()).forEach(doc => {
+
+                orderid = doc.id;
+                for (let item of doc.data().order) {
+                    entry2.push({ 'id': item.id, 'amount': item.qty });
+                }
 
             });
 
+            for (let item2 in this.menulist) {
+                for (let item in entry2) {
 
-            for (let item1 in entry2) {
-                this.cutstocker2[item1].namest = entry2[item1].namest;
-                this.cutstocker2[item1].weightst = entry2[item1].weightst;
-                this.cutstocker2[item1].id = entry2[item1].id;
+                    if (this.menulist[item2].id == entry2[item].id) {
+                        for (let ing in this.menulist[item2].ingre) {
+                            inginit.push({
+                                'ingid': this.menulist[item2].ingre[ing].id,
+                                'ingweigth': this.menulist[item2].ingre[ing].qty,
+                                'amount': entry2[item].amount
+                            })
+                        }
+                    }
+                }
+            }
 
-                for (let item2 in entry) {
-                    if (this.cutstocker2[item1].namest == this.orderList[item2].namein) {
-                        this.cutstocker2[item1].weightst = this.cutstocker2[item1].weightst - this.orderList[item2].amount;
 
-                        const ordercut3 = await firebase.firestore().collection("ingredient").doc(this.cutstocker2[item1].id).update({
-                            Weight: this.cutstocker2[item1].weightst, Userid: this.userid,
+            for (let inge of ing) {
+                for (let menuitem of inginit) {
+                    if (inge.id == menuitem.ingid) {
+                        inge.weightin = inge.weightin - (menuitem.ingweigth * menuitem.amount);
+                        await firebase.firestore().collection("ingredient").doc(inge.id).update({
+                            Weight: inge.weightin, Userid: this.userid,
                         });
                     }
-
                 }
-
             }
-            console.log(this.cutstocker2);
+
             let myOrderList = this.orderList.filter(function (value) {
                 return value.qty > 0
             })
@@ -255,28 +275,33 @@ export class SalePagePage implements OnInit {
                 allsum: this.sum,
                 table: this.data,
                 Userid: this.userid,
-                order: myOrderList
+                order: myOrderList,
+                datetime: new Date()
             });
             (await firebase.firestore().collection("order").where("table", "==", this.data).get()).forEach(doc => {
-                //  console.log(doc.id, '=>', doc.data()
+
                 orderid = doc.id;
 
             });
             const cancel = firebase.firestore().collection("order").doc(orderid).delete();
-            this.navCtrl.navigateForward('/table');
+            this.router.navigate(['/table'])
+                .then(() => {
+                    window.location.reload();
+                });
         }
+      
     }
 
     async cancel() {
         var orderid;
         if (this.check === true) {
             (await firebase.firestore().collection("order").where("table", "==", this.data).get()).forEach(doc => {
-                //  console.log(doc.id, '=>', doc.data()
+                
                 orderid = doc.id;
 
             });
 
-            console.log(orderid);
+          
             let alert = await this.alertCtrl.create({
                 cssClass: 'my-custom-class',
                 header: 'Confirm to delete',
@@ -295,8 +320,11 @@ export class SalePagePage implements OnInit {
                         text: 'Okay',
                         handler: () => {
                             console.log('Confirm Okay');
-                            const cancel = firebase.firestore().collection("order").doc(orderid).delete();
-                        this.navCtrl.navigateForward('/table');
+                            const cancel =  firebase.firestore().collection("order").doc(orderid).delete();
+                            this.router.navigate(['/table'])
+                                .then(() => {
+                                    window.location.reload();
+                                });
                         }
                     }
                 ]
@@ -305,7 +333,10 @@ export class SalePagePage implements OnInit {
             await alert.present();
             
         } else {
-            this.navCtrl.navigateForward('/table');
+            this.router.navigate(['/table'])
+                .then(() => {
+                    window.location.reload();
+                });
         }
     }
 
@@ -340,7 +371,7 @@ export class SalePagePage implements OnInit {
                 this.userid = res.uid;
 
 
-                const dbf = await firebase.firestore().collection("Food").where("Userid", "==", this.userid ? this.userid : "").where("Type", "==", "Drink");
+                const dbf = await firebase.firestore().collection("Menu").where("Userid", "==", this.userid ? this.userid : "")
                 const snapshot = await dbf.get();
                 this.drinkList = [];
                 snapshot.forEach(doc => {
@@ -348,7 +379,9 @@ export class SalePagePage implements OnInit {
 
                     var entry = {
                         'name': doc.data().Name,
-                        'price': doc.data().Price
+                        'price': doc.data().Price,
+                        'profit': doc.data().Profit,
+                        'id': doc.id,
                     };
 
                     this.drinkList.push(entry);
@@ -357,7 +390,10 @@ export class SalePagePage implements OnInit {
 
 
             } else {
-                this.navCtrl.navigateBack('');
+                this.router.navigate(['/table'])
+                    .then(() => {
+                        window.location.reload();
+                    });
             }
 
 
@@ -370,18 +406,19 @@ export class SalePagePage implements OnInit {
                 e["amount"] = 0;
                 return e
             });
-            for (let item1 in this.drinkList) {
-                for (let item2 in this.orderdetail.order) {
+            if (this.check == true) {
+                for (let item1 in this.drinkList) {
+                    for (let item2 in this.orderdetail.order) {
 
 
-                    if (this.drinkList[item1].name == this.orderdetail.order[item2].name) {
-                        this.drinkList[item1].qty = this.orderdetail.order[item2].qty;
-                        this.drinkList[item1].sum = this.orderdetail.order[item2].sum;
-                        this.drinkList[item1].amount = this.orderdetail.order[item2].amount;
+                        if (this.drinkList[item1].name == this.orderdetail.order[item2].name) {
+                            this.drinkList[item1].qty = this.orderdetail.order[item2].qty;
+                            this.drinkList[item1].sum = this.orderdetail.order[item2].sum;
+                            this.drinkList[item1].amount = this.orderdetail.order[item2].amount;
+                        }
+
                     }
-
                 }
-
             }
 
             console.log(this.drinkList);

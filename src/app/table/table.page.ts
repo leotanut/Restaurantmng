@@ -3,6 +3,7 @@ import { NavController, AlertController } from '@ionic/angular';
 import { AuthenticateService } from '../services/authentication.service';
 import * as firebase from 'firebase';
 import { async } from '@angular/core/testing';
+
 var user = firebase.auth().currentUser;
 //import { SalePagePage } from '../sale-page/sale-page.page';
 import { Router, NavigationExtras } from '@angular/router';
@@ -27,7 +28,12 @@ export class TablePage implements OnInit {
         public router: Router
     ) { }
 
-
+    navigateTomenu() {
+        this.navCtrl.navigateForward('/menu');
+    }
+    navigateTohistory() {
+        this.navCtrl.navigateForward('/history');
+    }
     navigateToStock() {
         this.navCtrl.navigateForward('/dashboard');
     }
@@ -51,8 +57,7 @@ export class TablePage implements OnInit {
                 if (this.tablenum == doc.data().table) {
                     check = 1;
                     this.checkorder = doc.data();
-                    console.log("555");
-
+                  
                 }
 
             });
@@ -66,7 +71,7 @@ export class TablePage implements OnInit {
                 };
                 this.router.navigate(['/sale-page'], navigationExtras);
 
-                console.log("have");
+               
             } else {
                 this.checkorder = null;
                 let navigationExtras: NavigationExtras = {
@@ -77,46 +82,26 @@ export class TablePage implements OnInit {
                     }
                 };
                 this.router.navigate(['/sale-page'], navigationExtras);
-                console.log("nothave");
             }
-            //check ? console.log("have") : console.log("not have");
-            /*  this.checkorder = "undefined"
-              let navigationExtras: NavigationExtras = {
-                  state: {
-  
-                      detail: this.checkorder, table: this.tablenum
-  
-                  }
-              };
-              this.router.navigate(['/sale-page'], navigationExtras);*/
+          
         }
 
 
-        /*  var entry = {
-              'table': doc.data().table,
-              'name': doc.data().name,
-              'qty': doc.data().qty,
-              'price': doc.data().price,
-              'id': doc.id
-          };
-          */
-
-
-        //  this.checkorder = undefined;  
+  /*
         console.log(this.tablenum);
         console.log(this.checkorder);
         this.checkorder = null;
-
-
-
+*/
     }
     async ngOnInit() {
+
         await this.authService.userDetails().subscribe(async (res) => {
 
             if (res !== null) {
 
                 this.userEmail = res.email;
                 this.userid = res.uid;
+                
             }
         }, err => {
             console.log('err', err);
@@ -124,3 +109,4 @@ export class TablePage implements OnInit {
     }
 
 }
+

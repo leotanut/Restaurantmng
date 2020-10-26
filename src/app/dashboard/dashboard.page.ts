@@ -19,13 +19,15 @@ import { ModalController } from '@ionic/angular';
 })
 
 
-export class DashboardPage  {
+export class DashboardPage {
+
     name: string;
     power: string;
     userEmail: string;
-    adding: { name: string; weight: number };  
+    adding: { name: string; weight: number };
     weight1: number;
 
+    geting = [];
     drinkList = [];
     foodList = [];
     dessertList = [];
@@ -33,17 +35,99 @@ export class DashboardPage  {
     weight: string;
     weightList = [];
     protected userid: string;
-
+    inadd = false;
+    mindate: string = new Date().toISOString();
+    maxdate: any = (new Date()).getFullYear() + 5;
 
     constructor(
         private navCtrl: NavController,
         public alertCtrl: AlertController,
         private authService: AuthenticateService,
 
-       
+
     ) { }
+    cancel() {
+        this.inadd = false;
+        this.display();
+        this.taskName = '';
+        this.weight = '';
+    }
+    cancelexist() {
+        this.addexis = false;
+        this.display();
+        this.taskName = '';
+        this.weight = '';
+    }
+    display() {
+        if (this.inadd = false) {
+            document.getElementById("addid").style.display = "none";
+        } else if (this.show = false) {
+            document.getElementById("showid").style.display = "none"
+        } else if (this.addexis = false) {
+            document.getElementById("exstid").style.display = "none"
+        }
+      
+    }
+    add() {
+        this.inadd = true;
+    }
+    hide(index) {
+        this.drinkList[index].selectshow = false;
+        this.show = false;
+        this.display();
+    }
+    async deletesubdrink(ing,i) {
+        let index = this.drinkList.indexOf(ing);
+        let task = this.drinkList[index];
+        let alert = await this.alertCtrl.create({
+            cssClass: 'my-custom-class',
+            header: 'Confirm to delete',
+            message: 'ingredient: ' + " " + task.name,
+            buttons: [
+                {
+                    text: 'Cancel',
+                    role: 'cancel',
+                    cssClass: 'secondary',
+                    handler: (blah) => {
+                        console.log('Confirm Cancel: blah');
+                    }
+                }, {
+                    text: 'Okay',
+                    handler: () => {
+                        console.log('Confirm Okay');
+                        if (index > -1) {
+                            this.drinkList[index].subing.splice(i, 1);
+                            if (this.drinkList[index].subing.length !== 0) {
+                                const db = firebase.firestore();
+                                ing.power = 0;
+                                for (let item of this.drinkList[index].subing) {
+                                    ing.power = Number(ing.power) + Number(item.Weight);
+
+                                }
+                                //   let index1 = index.toString();
+                                db.collection('ingredient').doc(ing.id).set({
+                                    Name: ing.name,
+                                    Weight: ing.power,
+                                    Userid: this.userid,
+                                    SubIng: this.drinkList[index].subing,
+                                });
+                                this.getdrink();
+                            } else if (this.drinkList[index].subing.length == 0){
+                                const db = firebase.firestore();                             
+                                db.collection('ingredient').doc(ing.id).delete();
+                                this.getdrink();
+                            }
+                        }
+                    }
+                }
+            ]
+        });
+
+        await alert.present();
+       
+    }
     navigateToSalepage() {
-        this.navCtrl.navigateForward('/sale-page');
+        this.navCtrl.navigateForward('/table');
     }
     async addfood() {
         console.log(user)
@@ -76,45 +160,142 @@ export class DashboardPage  {
         this.weight = "";
     }
 
+    expdate: Date;
+    show = false;
+    addexis = false;
 
-    async adddrink() {
-        console.log(user)
-        if (this.taskName.length > 0 && this.weight.length > 0) {
+    async showinit(index) {
+       
+        this.drinkList[index].selectshow = true;
+        this.show = true;
+    }
+
+
+    async addexistdis(index) {
+        this.drinkList[index].selectadd = true;
+        this.addexis = true;
+    }
+
+  
+    exstweight: number;
+
+
+    async addexist(ing,index) {
+
+      
+            for (let item of ing.subing) {
+                if (new Date(this.expdate).toLocaleDateString() === new Date(item.Expiredate.toDate()).toLocaleDateString()) {
+                    item.Weight = Number(item.Weight) + Number(this.exstweight)
+                    break;
+
+                } else if (this.expdate != undefined && item.Expiredate != undefined) {
+                    console.log(new Date(this.expdate).toLocaleDateString());
+                    console.log(new Date(item.Expiredate.toDate()).toLocaleDateString());
+                    ing.subing.push({
+                        "Weight": this.exstweight,
+                        "Expiredate": new Date(this.expdate),
+                    })
+
+                    break;
+                } else {
+                    ing.subing.push({
+                        "Weight": this.exstweight,
+                        "Expiredate": new Date(this.expdate),
+                    })
+                    break;
+                }
+
+            }
+            ing.power = 0;
+            for (let item of ing.subing) {
+                ing.power = Number(ing.power) + Number(item.Weight);
+
+            }
+            const exist = await firebase.firestore().collection("ingredient");
+            exist.doc(ing.id).set({
+                Name: ing.name,
+                Weight: ing.power,
+                Userid: this.userid,
+                SubIng: ing.subing,
+            });
+
+            this.drinkList[index].subing.push({
+                "Weight": this.exstweight,
+                "Expiredate": new Date(this.expdate),
+            })
+            this.exstweight = undefined;
+            this.expdate = undefined;
+            //    this.addexis = false;
+            //     this.display();
+            this.getdrink();
+        
+    }
+
+    async getdrink() {
+        const dbdrink = await firebase.firestore().collection("ingredient").where("Userid", "==", this.userid ? this.userid : "");
+        const snapshot2 = await dbdrink.get();
+        this.drinkList = [];
+        snapshot2.forEach(doc => {
+            console.log(doc.id, '=>', doc.data());
+
+         
             var entry = {
-                'name': this.taskName,
-                'power': this.weight
+                'name': doc.data().Name,
+                'power': doc.data().Weight,
+                'id': doc.id,
+                'subing': doc.data().SubIng,
+                'selectshow': false,
+                'selectadd': false,
             };
+           
             this.drinkList.push(entry);
+ 
 
 
-        }
-        //  this.foodList = this.taskList;
-        console.log(this.drinkList);
+        });
+    }
+    async adddrink() {
+         console.log(this.drinkList);
         const db = await firebase.firestore();
         let type = "drink";
         let ingredient = this.taskName;
-       
+        let expdate = this.expdate;
         let weight1 = this.weight;
-       // let id = (this.drinkList.length - 1).toString();
-     /*   await db.collection('ingredient').doc(id).set({
-            Name: ingredient,
-            Weight: weight,
-            Userid: this.userid,
-            type: type,
-        })*/ await db.collection('ingredient').add
+        let s = [];
+        s.push({ Expiredate: new Date (expdate), Weight: weight1 })
+
+        if (this.taskName.length > 0 && this.weight.length > 0) {
+          
+        await db.collection('ingredient').add
             ({
-            Name: ingredient,
-            Weight: weight1,
-            Userid: this.userid,
-            type: type,
+                Name: ingredient,
+                Weight: weight1,
+                Userid: this.userid,
+                type: type,
+                SubIng: s,
         }).then(function (docRef) {
             console.log("Document written with ID: ", docRef.id);
         }).catch(e => {
             console.error("firestoreError: " + e);
         })
-
+            s.pop();
+            s.push({
+                Expiredate: new Date(expdate).toLocaleDateString(), Weight: weight1 
+            })
+        var entry = {
+                'name': this.taskName,
+                'power': this.weight,
+                'expdate': this.expdate,
+                'subing': s,
+            };
+            this.drinkList.push(entry);
+      
         this.taskName = "";
         this.weight = "";
+        this.expdate = undefined;
+
+        }
+        this.getdrink();
     }
 
     async adddessert() {
@@ -255,13 +436,7 @@ export class DashboardPage  {
              buttons: [{ text: 'Cancel', role: 'cancel' },
              {
                  text: 'Update', handler: data => {
-                     
-
-                /*     if (data.editTask != "") {
-                         this.taskList[index1] = data.editTask;
-
-                     }*/
-
+             
                      if (data.editWeight != "") {
                         this.weightList[index1] = data.editWeight;
                      }
@@ -270,7 +445,6 @@ export class DashboardPage  {
                      const db = firebase.firestore();
                      db.collection('ingredient').doc(id).update({ Weight: data.editWeight, Userid: this.userid });
                      let w = data.editWeight;
-                  //   this.taskList.push(this.taskName + " " + w);
                      var entry = {
                        'name': this.taskName,
                          'power': w
@@ -278,8 +452,6 @@ export class DashboardPage  {
                      let task = this.foodList[index1];
                      task.power = entry.power;
 
-               //sessionStorage.setItem("reloading", "true");
-                    // document.location.reload();
                  }
               }
            ]
@@ -310,19 +482,16 @@ export class DashboardPage  {
                         this.weightList[index1] = data.editWeight;
                     }
                     let id = index1.toString();
-                    console.log(data.editWeight + "  " + id);
                     const db = firebase.firestore();
                     db.collection('ingredient').doc(ing.id).update({ Weight: data.editWeight, Userid: this.userid });
                     let w = data.editWeight;
-                    //   this.taskList.push(this.taskName + " " + w);
                     var entry = {
                         'name': this.taskName,
                         'power': w
                     };
                     let task = this.drinkList[index1];
                     task.power = entry.power;
-                    //sessionStorage.setItem("reloading", "true");
-                    // document.location.reload();
+                   
                 }
                 
             }
@@ -331,6 +500,42 @@ export class DashboardPage  {
 
         await alert.present();
 
+    }
+
+    async updatesubdrink(sub, ing) {
+
+        let alert = await this.alertCtrl.create({
+            cssClass: 'my-custom-class',
+            header: 'Update Weight?',
+            message: 'Type in your new weight to update.',
+            inputs: [{ name: 'editWeight', placeholder: 'Weight' }],
+
+            buttons: [{ text: 'Cancel', role: 'cancel' },
+            {
+                text: 'Update', handler: data => {
+                    if (data.editWeight != "") {
+                        sub.Weight = data.editWeight;
+                        console.log(data.editWeight);
+                        ing.power = 0;
+                        for (let item of ing.subing) { 
+                            ing.power = Number(ing.power) + Number(item.Weight);
+                        }
+                    }
+                  
+                    const db = firebase.firestore();
+                    db.collection('ingredient').doc(ing.id).set({
+                        Name: ing.name,
+                        Weight: ing.power,
+                        Userid: this.userid,
+                        SubIng: ing.subing,
+                    });
+                }
+
+            }
+            ]
+        });
+
+        await alert.present();
     }
     async updatedessert(index1) {
 
@@ -375,6 +580,7 @@ export class DashboardPage  {
         await alert.present();
 
     }
+   
     async ngOnInit() {
 
         await this.authService.userDetails().subscribe(async (res) => {
@@ -400,21 +606,36 @@ export class DashboardPage  {
 
                 });
 
-                const dbdrink = await firebase.firestore().collection("ingredient").where("Userid", "==", this.userid ? this.userid : "").where("type", "==", "drink");
+                const dbdrink = await firebase.firestore().collection("ingredient").where("Userid", "==", this.userid ? this.userid : "");
                 const snapshot2 = await dbdrink.get();
                 this.drinkList = [];
                 snapshot2.forEach(doc => {
                     console.log(doc.id, '=>', doc.data());
 
+                /*    var entry2 = {
+                        type: 'checkbox',
+                        label: doc.data().Name,
+                        value: {
+                            name: doc.data().Name, id: doc.id, qty: '',
+                        },
+                        
+
+                    };*/
+                 
                     var entry = {
                         'name': doc.data().Name,
                         'power': doc.data().Weight,
-                        'id': doc.id
+                        'id': doc.id,
+                        'subing': doc.data().SubIng,
+                        'selectshow': false,
+                        'selectadd':false,
                     };
-
+                    //this.geting.push(entry2)
                     this.drinkList.push(entry);
-
+                  //  console.log(this.drinkList);
+                    
                 });
+
                 const dbdess = await firebase.firestore().collection("ingredient").where("Userid", "==", this.userid ? this.userid : "").where("type", "==", "dessert");
                 const snapshot3 = await dbdess.get();
                 this.dessertList = [];

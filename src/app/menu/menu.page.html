@@ -5,7 +5,7 @@
 
             <ion-buttons slot="start" (click)="navigateToSalepage()">
                 <ion-button>
-                    <ion-icon name="chevron-back"></ion-icon>
+                    <ion-icon name="chevron-back" style="zoom:1.2;"></ion-icon>
                 </ion-button>
             </ion-buttons>
             <ion-title class="ion-text-center">Menu</ion-title>
@@ -15,48 +15,122 @@
     </ion-header>
 </ion-header>
 <ion-content>
-    <div [ngSwitch]="segmentModel">
-        <!-- Responsive Layout with Ion Grid-->
-        <ion-list *ngSwitchCase="'Food'">
+    <!-- <div [ngSwitch]="segmentModel">
+         Responsive Layout with Ion Grid
+    <ion-list *ngSwitchCase="'Food'">
 
-            <ion-item *ngFor="let menu of MenuList; let i = index">
-                <ion-label>
-                    {{menu.name}}
-                </ion-label>
-            </ion-item>
-        </ion-list>
-       
-        <ion-fab horizontal="start" vertical="bottom" *ngSwitchCase="'Food'">
+    <ion-item *ngFor="let menu of MenuList; let i = index">
+        <ion-label>
+            menu.name
+        </ion-label>
+    </ion-item>
+    </ion-list>  <ion-fab horizontal="start" vertical="bottom" *ngSwitchCase="'Food'">
             <ion-fab-button class="menu-btn" (click)="addmenu()">
                 <ion-icon name="add"></ion-icon>
             </ion-fab-button>
-        </ion-fab>
+        </ion-fab>-->
+    <div>
+
+        <ion-input type="text" [(ngModel)]="menuname" placeholder="Add new menu"></ion-input>
+        <ion-button size="medium" color="success" (click)="addmenu()"><ion-icon name="add"></ion-icon></ion-button>
+
     </div>
+    <div *ngIf="add==true" id="add">
+
+        <ion-card>
+            {{validate}}
+            <ion-card-content>
+                <ion-card-title>
+                    {{menuname}}
+                    <ion-item>
+                        <ion-label position="stacked">Price</ion-label>
+                        <ion-input [(ngModel)]="price" type="text" placeholder="Input price "></ion-input>
+                    </ion-item>
+                    <ion-item>
+                        <ion-label position="stacked">Profit</ion-label>
+                        <ion-input [(ngModel)]="profit" type="text" placeholder="Input profit from this menu"></ion-input>
+                    </ion-item>
+                </ion-card-title>
+                <div *ngFor="let ingall of MenuList; let i = index">
+                    <ion-item>
+                        <ion-label>
+                            Ingredient name: {{ingall.name}}
+                        </ion-label><br />
+                    </ion-item>
+                    <ion-item>
+                        <ion-label position="stacked">Quantity</ion-label>
+                        <ion-input [(ngModel)]="MenuList[i].qty" type="text" placeholder="Input quantity to cut stock"></ion-input>
+                    </ion-item>
+
+                </div>
+                <ion-button size="medium" color="success" item-end (click)="confirmmenu()">Add Menu</ion-button>
+                <ion-button size="medium" color="danger" (click)="canceladd()">Cancel</ion-button>
+
+            </ion-card-content>
+
+        </ion-card>
+
+
+    </div>
+    <ion-item>
+        <ion-label>All menu</ion-label>
+    </ion-item>
+    <div *ngFor="let menuall of getmenu; let i = index">
+
+        <ion-item>
+            <ion-label>
+                Name: {{menuall.name}}
+            </ion-label>
+            <ion-label slot="end">
+                Price: {{menuall.price}}
+            </ion-label>
+        </ion-item>
+        <div>
+            <ion-button clear slot="end" (click)="updatemenu(menuall.id,i)">
+                <ion-icon name="create"></ion-icon>
+            </ion-button>
+            <ion-button clear slot="end" (click)="delete(menuall)">
+                <ion-icon name="trash"></ion-icon>
+            </ion-button>
+        </div>
+   
+        <div *ngIf="update==true && getmenu[i].select ==true" id="up">
+            <ion-card>
+                {{validate}}
+                <ion-card-content>
+                    <ion-card-title>
+                        {{menuname}}
+                        <ion-item>
+                            <ion-label position="stacked">Price</ion-label>
+                            <ion-input [(ngModel)]="price" type="text" placeholder="Input price "></ion-input>
+                        </ion-item>
+                        <ion-item>
+                            <ion-label position="stacked">Profit</ion-label>
+                            <ion-input [(ngModel)]="profit" type="text" placeholder="Input profit from this menu"></ion-input>
+                        </ion-item>
+                    </ion-card-title>
+                    <div *ngFor="let ingall of MenuList; let i = index">
+                        <ion-item>
+                            <ion-label>
+                                Ingredient name: {{ingall.name}}
+                            </ion-label><br />
+                        </ion-item>
+                        <ion-item>
+                            <ion-label position="stacked">Quantity</ion-label>
+                            <ion-input [(ngModel)]="MenuList[i].qty" type="text" placeholder="Input quantity to cut stock"></ion-input>
+                        </ion-item>
+
+                    </div>
+                    <ion-button size="medium" color="success" item-end (click)="confirmupdate()">Update Menu</ion-button>
+                    <ion-button size="medium" color="danger" (click)="cancelupdate()">Cancel</ion-button>
+
+                </ion-card-content>
+
+            </ion-card>
+        </div>
+        </div>
+        
+  
 </ion-content>
 
-<ion-footer>
-    <ion-toolbar class="menu-btn">
-
-        <ion-segment value="all"
-                     color="tertiary"
-                     scrollable="true"
-                     mode="ios"
-                     [(ngModel)]="segmentModel">
-                 <!--    (ionChange)="segmentChanged($event)">-->
-
-            <!--   <ion-segment-button color="primary" value="Menu">
-                <ion-icon name="ellipsis-vertical"></ion-icon>
-            </ion-segment-button>-->
-
-            <ion-segment-button value="Food">
-                Food
-            </ion-segment-button>
-            <ion-segment-button value="Drink">
-                Drink
-            </ion-segment-button>
-            <ion-segment-button value="Dessert">
-                Dessert
-            </ion-segment-button>
-        </ion-segment>
-    </ion-toolbar>
-</ion-footer>
+   

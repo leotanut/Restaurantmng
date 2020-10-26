@@ -2,32 +2,16 @@
     <ion-toolbar class="menu-btn">
         <ion-buttons slot="start" (click)="navigateToSalepage()">
             <ion-button>
-                <ion-icon name="chevron-back" style="zoom:2.0;"></ion-icon>
+                <ion-icon name="chevron-back" style="zoom:1.2;"></ion-icon>
             </ion-button>
         </ion-buttons>
-        <ion-title class="ion-text-center">Ingredient</ion-title>
+        <ion-title class="ion-text-center">Stock</ion-title>
 
     </ion-toolbar>
     
 </ion-header>
 
 <ion-content class="ion-padding">
-
-    <!-- <ion-grid>
-          <ion-row>
-              <ion-col text-center>
-                  Welcome to Dashboard!
-              </ion-col>
-          </ion-row>
-          <ion-row>
-              <ion-col text-center>
-                  Your Registered EmailID : userEmail
-
-              </ion-col>
-          </ion-row>
-      </ion-grid>-->
-
-
 
     <div [ngSwitch]="segmentModel">
         <ion-list *ngSwitchCase="'Food'">
@@ -59,30 +43,77 @@
 
     <div [ngSwitch]="segmentModel">
         <ion-list *ngSwitchCase="'Drink'">
+         
+            <ion-button (click)="add()"><ion-icon name="add"></ion-icon></ion-button>
 
-            <input type="text" [(ngModel)]="taskName" placeholder="Enter ingredient" />
-            <input type="text" [(ngModel)]="weight" placeholder="Enter weight" />
-            <button ion-button (click)="adddrink()"><ion-icon name="add"></ion-icon></button>
 
-            <ion-item *ngFor="let ingall of drinkList; let i = index">
-                <ion-label>
-                    {{ingall.name}}
-                </ion-label>
-                <ion-label>{{ingall.power}} unit.</ion-label><button ion-button clear (click)="updatedrink(i,ingall)">
-                    <ion-icon name="create"></ion-icon>
-                </button>&nbsp;
-                <div class="item-note" item-end>
 
-                    <button ion-button clear (click)="deletedrink(ingall)">
+            <div *ngIf="inadd==true;" id="addid">
+                <ion-input type="text" [(ngModel)]="taskName" placeholder="Enter new ingredient"></ion-input>
+                <ion-input type="text" [(ngModel)]="weight" placeholder="Enter weight"></ion-input>
+                <ion-datetime  [(ngModel)]="expdate" value="Select expire date" placeholder="Select expire Date"
+                           [min]="mindate"   [max]="maxdate"></ion-datetime>
+                <ion-button (click)="adddrink()" >Add</ion-button>
+                <ion-button color="danger"(click)="cancel()">cancel</ion-button>
+            </div>
+
+
+
+
+
+            <div *ngFor="let ingall of drinkList; let i = index">
+                <ion-item>
+                    <ion-label>
+                        {{ingall.name}}
+                    </ion-label>
+                    <ion-label>{{ingall.power}} unit.</ion-label>
+                </ion-item>
+                <div>
+
+
+                    <ion-button clear (click)="showinit(i)" slot="end" color="success">
+                        show
+                    </ion-button>
+                    <ion-button clear (click)="updatedrink(i,ingall)" slot="end">
+                        <ion-icon name="create"></ion-icon>
+                    </ion-button>
+                    <ion-button clear (click)="deletedrink(ingall)" slot="end" color="danger">
                         <ion-icon name="trash"></ion-icon>
-                    </button>
+                    </ion-button>
+
                 </div>
+                <div *ngIf="show==true && drinkList[i].selectshow ==true" id="showid">
+                    <ion-button (click)="addexistdis(i)"><ion-icon name="add"></ion-icon></ion-button>
+                    <div *ngIf="addexis==true && drinkList[i].selectadd ==true" id="exstid">
 
+                        <ion-input type="text" [(ngModel)]="exstweight" placeholder="Enter weight"></ion-input>
+                        <ion-datetime [(ngModel)]="expdate" value="Select expire date" placeholder="Select expire Date"
+                                      [min]="mindate" [max]="maxdate"></ion-datetime>
+                        <ion-button (click)="addexist(ingall,i)">Add</ion-button>
+                        <ion-button color="danger" (click)="cancelexist()">cancel</ion-button>
+                    </div>
+                    <div *ngFor="let sub of drinkList[i].subing; let in = index">
+                        <ion-item>
+                            <ion-label>
+                                {{ingall.name}} weight : {{sub.Weight}}
+                            </ion-label>
+                            <ion-label>Expiredate : {{sub.Expiredate.toDate() | date: 'dd MMM yyyy' }}</ion-label>
+                        </ion-item>
+                        <ion-button clear (click)="updatesubdrink(sub,ingall)">
+                            <ion-icon name="create"></ion-icon>
+                        </ion-button>
+                        <ion-button clear (click)="deletesubdrink(ingall,in)" slot="end" color="danger">
+                            <ion-icon name="trash"></ion-icon>
+                        </ion-button>
+
+                    </div>
+                    <ion-button clear (click)="hide(i)" slot="start" color="success">
+                       hide
+                    </ion-button>
+                </div>
                 <div class="item-note" item-end></div>
-
-
-            </ion-item>
-        </ion-list>
+            </div>
+</ion-list>
     </div>
 
     <div [ngSwitch]="segmentModel">

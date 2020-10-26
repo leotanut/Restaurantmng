@@ -35,6 +35,10 @@ const routes: Routes = [
     path: 'table',
     loadChildren: () => import('./table/table.module').then( m => m.TablePageModule)
   },
+  {
+    path: 'history',
+    loadChildren: () => import('./history/history.module').then( m => m.HistoryPageModule)
+  },
  
 ];
 

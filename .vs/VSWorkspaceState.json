@@ -1,16 +1,14 @@
 {
   "ExpandedNodes": [
     "",
-    "\\e2e",
     "\\src",
     "\\src\\app",
     "\\src\\app\\dashboard",
-    "\\src\\app\\home",
-    "\\src\\app\\login",
-    "\\src\\app\\register",
+    "\\src\\app\\history",
+    "\\src\\app\\menu",
     "\\src\\app\\sale-page",
-    "\\src\\app\\services"
+    "\\src\\app\\table"
   ],
-  "SelectedNode": "\\src\\app\\sale-page\\sale-page.page.ts",
+  "SelectedNode": "\\src\\app\\dashboard\\dashboard.page.ts",
   "PreviewInSolutionExplorer": false
 }
